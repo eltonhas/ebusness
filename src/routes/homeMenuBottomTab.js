@@ -4,6 +4,7 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Home from '../screens/Home';
+import ScheduleMenuStack from './ScheduleMenuStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -21,6 +22,14 @@ export default function HomeMenuBottomTab({ navigation, route }) {
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="home" color={color} size={26}/>
+        }}
+      />
+      <Tab.Screen
+        name="ScheduleMenuStack"
+        component={ScheduleMenuStack}
+        options={{
+          tabBarLabel: 'Agenda',
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="calendar-clock" color={color} size={26}/>
         }}
       />
     </Tab.Navigator>

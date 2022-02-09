@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { KeyboardAvoidingView, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, View, Text, 
+          TextInput, TouchableOpacity, ActivityIndicator
+        } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 import { auth, firestore } from '../../connection/firebaseConnection';
@@ -24,6 +26,8 @@ export default function Register({ navigation }) {
   const [passwordConfirmSecured, setPasswordConfirmSecured] = useState(true);
   const [statusRegisterError, setStatusRegisterError] = useState(false);
   const [messageRegisterError, setMessageRegisterError] = useState('');
+
+  const [loading, setLoading] = useState(false);
 
   function handleChangeText(key, value) {
     if (statusRegisterError) {
@@ -54,7 +58,7 @@ export default function Register({ navigation }) {
       setMessageRegisterError('Todos os campos são de \npreenchimento obrigatório');
       setStatusRegisterError(true);
     } else {
-      
+      setLoading(true);
       createUserWithEmailAndPassword(auth, state.email, state.password)
       .then((userCredential) => {
         let userName = state.name, userEmail = state.email;
@@ -81,6 +85,8 @@ export default function Register({ navigation }) {
         });
         setPasswordConfirm('');
 
+        setLoading(false);
+
         navigation.replace('HomeMenuBottomTab', {
           screen: 'Home',
           params: { uid: userCredential.user.uid, name: userName, email: userEmail }
@@ -104,6 +110,8 @@ export default function Register({ navigation }) {
       style={styles.container}
     >
       <Text style={styles.titleText}>Daods do Usuário</Text>
+
+      {loading ? <ActivityIndicator size="large" color="#730000"/> : <></>}
 
       <View style={styles.inputView}>
         <MaterialIcons name="email" size={24} color='#730000'/>
@@ -140,7 +148,7 @@ export default function Register({ navigation }) {
       </View>
       
       <View style={styles.inputView}>
-        <MaterialIcons name='lock' size={24} color='#730000'/>
+        <FontAwesome5 name='lock' size={24} color='#730000'/>
         <TextInput
           style={styles.input}
           value={state.password}
@@ -166,7 +174,7 @@ export default function Register({ navigation }) {
       </View>
       
       <View style={styles.inputView}>
-        <MaterialIcons name='lock' size={24} color='#730000'/>
+        <FontAwesome5 name='lock' size={24} color='#730000'/>
         <TextInput
           style={styles.input}
           value={passwordConfirm}

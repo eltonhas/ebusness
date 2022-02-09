@@ -1,10 +1,13 @@
 
 import React, { useState } from "react";
-import { View, KeyboardAvoidingView, Text, TouchableOpacity, TextInput, Image, Platform } from 'react-native';
+import { View, KeyboardAvoidingView, Text, TouchableOpacity, 
+        TextInput, Image, Platform, ActivityIndicator 
+      } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
-import { auth } from '../../connection/firebaseConnection';
+import { auth, firestore } from '../../connection/firebaseConnection';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 import Separator from "../../components/Separator";
 
@@ -22,6 +25,8 @@ export default function Login({ navigation }) {
   const [passwordSecured, setPasswordSecured] = useState(true);
   const [statusLoginError, setStatusLoginError] = useState(false);
   const [messageLoginError, setMessageLoginError] = useState('');
+
+  const [loading, setLoading] = useState(false);
 
   function handleChangeText(key, value) {
     if (statusLoginError) {
@@ -53,18 +58,30 @@ export default function Login({ navigation }) {
       setMessageLoginError('Todos os campos são de \npreenchimento obrigatório');
       setStatusLoginError(true);
     } else {
-
+      setLoading(true);
       signInWithEmailAndPassword(auth, state.email, state.password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         setState({
           email: '',
           password: ''
         });
 
-        navigation.replace('HomeMenuBottomTab', {
-          screen: 'Home',
-          params: { uid: userCredential.user.uid, name: userCredential.user.displayName, email: userCredential.user.email }
-        });
+        const docRef = doc(firestore, "profile", userCredential.user.uid);
+        const userProfile = await getDoc(docRef);
+
+        if (userProfile.exists()) {
+          global.idUsuario = userCredential.user.uid;
+          global.nomeUsuario = userProfile.data().uid;
+          global.emailUsuario = userProfile.data().uid;
+          global.telefoneUsuario = userProfile.data().uid;
+          global.tipoUsuario = userProfile.data().uid;
+          setLoading(false);
+          navigation.replace('HomeMenuBottomTab', {
+            screen: 'Home',
+            params: { uid: userCredential.user.uid, name: userCredential.user.displayName, email: userCredential.user.email }
+          });
+        }
+
       })
       .catch((error) => {
         switch (error.code) {
@@ -84,6 +101,7 @@ export default function Login({ navigation }) {
             setMessageLoginError('Email e/ou Senha inválidos!');
         }
         setStatusLoginError(true);
+        setLoading(false)
       })
     }
   }
@@ -95,6 +113,8 @@ export default function Login({ navigation }) {
     >
       <Text style={styles.titleText}>Lava a Jato G&G</Text>
       <Image style={styles.imgLogo} source={imgLJ}/>
+
+      {loading ? <ActivityIndicator size="large" color="#730000"/> : <></>}
 
       <View style={styles.inputView}>
         <MaterialIcons name="email" size={24} color="#730000"/>

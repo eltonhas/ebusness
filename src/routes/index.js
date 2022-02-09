@@ -21,8 +21,8 @@ function getHeaderTitle(route) {
       return 'Home';
     case 'Schedules':
       return 'Agendamentos';
-    case 'History':
-      return 'Histórico';
+    // case 'History':
+    //   return 'Histórico';
   }
 }
 
